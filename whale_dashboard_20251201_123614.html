@@ -1,0 +1,434 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whale Strategy - Optimization Results</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; padding: 20px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.1); border-radius: 20px; margin-bottom: 30px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .header h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header .emoji { font-size: 4em; margin-bottom: 20px; }
+        .header .timestamp { font-size: 1.1em; opacity: 0.8; margin-top: 10px; }
+        .grid, .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .card, .summary-card { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); transition: transform 0.3s ease, box-shadow 0.3s ease; text-align: center; }
+        .card:hover, .summary-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .card h2 { font-size: 1.5em; margin-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px; text-align: left; }
+        .metric-value, .value { font-size: 1.8em; font-weight: bold; margin: 10px 0; }
+        .metric-label, .label { font-size: 1em; opacity: 0.8; }
+        .param-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .param-table th, .param-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .param-table th { background: rgba(255,255,255,0.1); font-weight: bold; }
+        .param-table tr:hover { background: rgba(255,255,255,0.05); }
+        .badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; }
+        .badge.success { background: #4CAF50; }
+        .badge.warning { background: #FFC107; color: #000; }
+        .badge.error { background: #f44336; }
+        .badge.info { background: #2196F3; }
+        .trades-section { margin-top: 30px; }
+        .trade-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #4CAF50; text-align: left; }
+        .trade-item.exit { border-left-color: #FFC107; }
+        .trade-item.short { border-left-color: #f44336; }
+        .progress-bar { width: 100%; height: 30px; background: rgba(255,255,255,0.1); border-radius: 15px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); display: flex; align-items: center; justify-content: center; font-weight: bold; transition: width 0.3s ease; }
+        .icon { font-size: 2em; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emoji">🐋</div>
+            <h1>Whale Strategy Optimization Results</h1>
+            <div class="timestamp">⏰ 01/12/2025 12:36:14</div>
+        </div>
+        
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="icon">💰</div>
+                <div class="value" style="color: #f44336">$-0.04</div>
+                <div class="label">Toplam Kar/Zarar</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="icon">📈</div>
+                <div class="value" style="color: #4CAF50">%142.59</div>
+                <div class="label">Getiri Oranı</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="icon">🎯</div>
+                <div class="value" style="color: #4CAF50">%75.43</div>
+                <div class="label">Kazanma Oranı</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="icon">📉</div>
+                <div class="value" style="color: #4CAF50">%18.04</div>
+                <div class="label">Max Drawdown</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="icon">🔢</div>
+                <div class="value">175</div>
+                <div class="label">Toplam İşlem</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="icon">✅</div>
+                <div class="value" style="color: #4CAF50">132</div>
+                <div class="label">Kazanan</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="icon">❌</div>
+                <div class="value" style="color: #f44336">43</div>
+                <div class="label">Kaybeden</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="icon">⚖️</div>
+                <div class="value">3.07</div>
+                <div class="label">Win/Loss Ratio</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📊 Kazanma Oranı Göstergesi</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 75.42857142857143%">
+                    %75.4
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>⚙️ En İyi Çıkış Parametreleri</h2>
+            <table class="param-table">
+                <thead>
+                    <tr>
+                        <th>Parametre</th>
+                        <th>Değer</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3" style="background: rgba(33,150,243,0.2); font-weight: bold; font-size: 1.1em;">
+                            Take Profit
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Take Profit Aktif</td>
+                        <td><strong>❌ Pasif</strong></td>
+                        <td><span class="badge error">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background: rgba(33,150,243,0.2); font-weight: bold; font-size: 1.1em;">
+                            Trailing Stop
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Trailing Stop Aktif</td>
+                        <td><strong>✅ Aktif</strong></td>
+                        <td><span class="badge success">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Trailing Yüzdesi</td>
+                        <td><strong>2.00</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Min Pozisyon Sayısı</td>
+                        <td><strong>3</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Trailing Sonrası Ekstra TP</td>
+                        <td><strong>✅ Aktif</strong></td>
+                        <td><span class="badge success">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Ekstra TP Yüzdesi</td>
+                        <td><strong>4.50</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background: rgba(33,150,243,0.2); font-weight: bold; font-size: 1.1em;">
+                            Pozisyon Büyütme
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Pozisyon Çarpanı</td>
+                        <td><strong>1.00</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background: rgba(33,150,243,0.2); font-weight: bold; font-size: 1.1em;">
+                            DCA
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>DCA Aktif</td>
+                        <td><strong>✅ Aktif</strong></td>
+                        <td><span class="badge success">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Maksimum DCA Sayısı</td>
+                        <td><strong>4</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>DCA Düşüş Yüzdesi</td>
+                        <td><strong>5.00</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>DCA Mum Gecikmesi</td>
+                        <td><strong>6</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background: rgba(33,150,243,0.2); font-weight: bold; font-size: 1.1em;">
+                            Maliyet Çıkışı
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Maliyet Çıkışı Aktif</td>
+                        <td><strong>✅ Aktif</strong></td>
+                        <td><span class="badge success">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Maliyet İçin Min Entry</td>
+                        <td><strong>3</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Maliyet Return %</td>
+                        <td><strong>0.40</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background: rgba(33,150,243,0.2); font-weight: bold; font-size: 1.1em;">
+                            Mini Loss
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Mini Loss Aktif</td>
+                        <td><strong>✅ Aktif</strong></td>
+                        <td><span class="badge success">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Mini Loss İçin Min Entry</td>
+                        <td><strong>6</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Mini Loss Stop %</td>
+                        <td><strong>5.00</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Mini Loss Cooldown</td>
+                        <td><strong>50</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background: rgba(33,150,243,0.2); font-weight: bold; font-size: 1.1em;">
+                            Whale Stop
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Drop Speed Aktif</td>
+                        <td><strong>✅ Aktif</strong></td>
+                        <td><span class="badge success">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Drop Speed %</td>
+                        <td><strong>2.00</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Drop Speed Barlar</td>
+                        <td><strong>1</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Panic Drop Aktif</td>
+                        <td><strong>✅ Aktif</strong></td>
+                        <td><span class="badge success">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Panic Drop %</td>
+                        <td><strong>11.00</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Panic Drop Barlar</td>
+                        <td><strong>3</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                    <tr>
+                        <td>Panic Cooldown</td>
+                        <td><strong>80</strong></td>
+                        <td><span class="badge info">Optimize Edildi</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card trades-section">
+            <h2>📋 İşlem Geçmişi (Son 20 İşlem)</h2>
+            <div class="trade-item">
+                <strong>#638</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0085</strong> | 
+                Size: 1.0000 | 
+                1. ENTER-LONG (🚀)
+            </div>
+            <div class="trade-item exit">
+                <strong>#637</strong> - 
+                EXIT LONG @ 
+                <strong>$0.0086</strong> | 
+                Size: 4.0000 | 
+                EXIT LONG (Maliyet)
+            </div>
+            <div class="trade-item">
+                <strong>#636</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0084</strong> | 
+                Size: 1.0000 | 
+                4. ENTER-LONG (AL)
+            </div>
+            <div class="trade-item">
+                <strong>#635</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0086</strong> | 
+                Size: 1.0000 | 
+                3. ENTER-LONG (BOĞA)
+            </div>
+            <div class="trade-item">
+                <strong>#634</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0086</strong> | 
+                Size: 1.0000 | 
+                2. ENTER-LONG (🚀)
+            </div>
+            <div class="trade-item">
+                <strong>#633</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0086</strong> | 
+                Size: 1.0000 | 
+                1. ENTER-LONG (🚀)
+            </div>
+            <div class="trade-item exit">
+                <strong>#632</strong> - 
+                EXIT LONG @ 
+                <strong>$0.0080</strong> | 
+                Size: 1.0000 | 
+                Long EXIT (MinPos Not Met)
+            </div>
+            <div class="trade-item">
+                <strong>#631</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0079</strong> | 
+                Size: 1.0000 | 
+                1. ENTER-LONG (BOĞA)
+            </div>
+            <div class="trade-item exit">
+                <strong>#630</strong> - 
+                EXIT LONG @ 
+                <strong>$0.0077</strong> | 
+                Size: 3.0000 | 
+                EXIT LONG (Whale Panic)
+            </div>
+            <div class="trade-item">
+                <strong>#629</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0077</strong> | 
+                Size: 1.0000 | 
+                3. ENTER-LONG (OS)
+            </div>
+            <div class="trade-item">
+                <strong>#628</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0082</strong> | 
+                Size: 1.0000 | 
+                2. ENTER-LONG (🚀)
+            </div>
+            <div class="trade-item">
+                <strong>#627</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0084</strong> | 
+                Size: 1.0000 | 
+                1. ENTER-LONG (AL)
+            </div>
+            <div class="trade-item exit">
+                <strong>#626</strong> - 
+                EXIT LONG @ 
+                <strong>$0.0085</strong> | 
+                Size: 1.0000 | 
+                Long EXIT (MinPos Not Met)
+            </div>
+            <div class="trade-item">
+                <strong>#625</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0086</strong> | 
+                Size: 1.0000 | 
+                1. ENTER-LONG (🚀)
+            </div>
+            <div class="trade-item exit">
+                <strong>#624</strong> - 
+                EXIT LONG @ 
+                <strong>$0.0087</strong> | 
+                Size: 3.0000 | 
+                EXIT LONG (Maliyet)
+            </div>
+            <div class="trade-item">
+                <strong>#623</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0087</strong> | 
+                Size: 1.0000 | 
+                3. ENTER-LONG (🚀)
+            </div>
+            <div class="trade-item">
+                <strong>#622</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0085</strong> | 
+                Size: 1.0000 | 
+                2. ENTER-LONG (🚀)
+            </div>
+            <div class="trade-item">
+                <strong>#621</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0087</strong> | 
+                Size: 1.0000 | 
+                1. ENTER-LONG (🚀)
+            </div>
+            <div class="trade-item exit">
+                <strong>#620</strong> - 
+                EXIT LONG @ 
+                <strong>$0.0089</strong> | 
+                Size: 3.0000 | 
+                EXIT LONG (Maliyet)
+            </div>
+            <div class="trade-item">
+                <strong>#619</strong> - 
+                ENTRY LONG @ 
+                <strong>$0.0089</strong> | 
+                Size: 1.0000 | 
+                3. ENTER-LONG (OS)
+            </div>
+        </div>
+        
+        <div class="card" style="text-align: center; margin-top: 30px;">
+            <h3>🎯 Optimizasyon Başarıyla Tamamlandı!</h3>
+            <p style="margin-top: 15px; opacity: 0.8;">
+                Bu sonuçlar Optuna optimizasyon algoritması kullanılarak elde edilmiştir.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
