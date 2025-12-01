@@ -2400,7 +2400,7 @@ if __name__ == "__main__":
         load_if_exists=True
     )
     
-    n_trials_full = 20  # DENEME SAYISI
+    n_trials_full = 2  # DENEME SAYISI
 
     print(f"\nAI Optimizasyonu (Tam Veri) başlıyor... Toplam {n_trials_full} deneme yapılacak.")
     
@@ -2477,7 +2477,7 @@ if __name__ == "__main__":
     # -----------------------------------------------------
     IN_SAMPLE_DAYS = 270       # Öğrenme periyodu (GÜN) - Daha fazla WFO adımı için düşürüldü
     OUT_OF_SAMPLE_DAYS = 30    # Test periyodu (GÜN)
-    N_TRIALS_PER_STEP = 20    # Her WFO adımındaki Optuna deneme sayısı
+    N_TRIALS_PER_STEP = 2    # Her WFO adımındaki Optuna deneme sayısı
     # -----------------------------------------------------
 
     print(f"WFO Ayarları: {IN_SAMPLE_DAYS} GÜN öğren, SON {OUT_OF_SAMPLE_DAYS} GÜN test et.")
