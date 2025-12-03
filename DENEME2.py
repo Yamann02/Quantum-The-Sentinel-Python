@@ -438,61 +438,64 @@ class WhaleStopStrategy:
         obv_rsi = self.ta_rsi(obv_value, 14)
         return obv_rsi
     
-    def run_strategy(self):
+    def run_strategy(self, silent=False):
         """Stratejiyi çalıştır"""
-        print("="*70)
-        print("☄️ QUANTUM THE SENTİNEL ☄️")
-        print("="*70)
+        if not silent:
+            print("="*70)
+            print("☄️ QUANTUM THE SENTİNEL ☄️")
+            print("="*70)
         # Optimizasyon için indikatör hesaplamaları bu fonksiyondan çıkarıldı.
         # Hesaplamalar artık strateji çalıştırılmadan ÖNCE bir kez yapılıyor.
         # Bu, her Optuna denemesinde tekrar tekrar hesaplama yapılmasını önler.
         
-        print("\n📊 İndikatörler hesaplanıyor (V4 Hesaplama Motor)...")
+        if not silent:
+            print("\n📊 İndikatörler hesaplanıyor (V4 Hesaplama Motor)...")
         
         self.df['bb_basis'], self.df['bb_upper'], self.df['bb_lower'] = self.calculate_bollinger_bands()
-        print("   ✅ Bollinger Bands")
+        if not silent: print("   ✅ Bollinger Bands")
         
         self.df['stoch_rsi1_k'], self.df['stoch_rsi1_d'], self.df['rsi_value1'] = self.calculate_stochastic_rsi(
             self.stoch_rsi1_rsi_length, self.stoch_rsi1_stoch_length, 
             self.stoch_rsi1_k_length, self.stoch_rsi1_d_length
         )
-        print("   ✅ Stochastic RSI 1")
+        if not silent: print("   ✅ Stochastic RSI 1")
         
         self.df['stoch_rsi2_k'], self.df['stoch_rsi2_d'], self.df['rsi_value2'] = self.calculate_stochastic_rsi(
             self.stoch_rsi2_rsi_length, self.stoch_rsi2_stoch_length,
             self.stoch_rsi2_k_length, self.stoch_rsi2_d_length
         )
-        print("   ✅ Stochastic RSI 2")
+        if not silent: print("   ✅ Stochastic RSI 2")
         
         self.df['williams_r'] = self.calculate_williams_r()
-        print("   ✅ Williams %R")
+        if not silent: print("   ✅ Williams %R")
         
         self.df['smoothed_rsi'] = self.calculate_smoothed_rsi()
-        print("   ✅ Smoothed RSI")
+        if not silent: print("   ✅ Smoothed RSI")
         
         self.df['adx'] = self.calculate_adx()
-        print("   ✅ ADX")
+        if not silent: print("   ✅ ADX")
         
         self.df['crsi'], self.df['db'], self.df['ub'] = self.calculate_cyclic_rsi()
-        print("   ✅ Cyclic RSI")
+        if not silent: print("   ✅ Cyclic RSI")
         
         self.df['fish1'], self.df['fish2'] = self.calculate_fisher_transform()
-        print("   ✅ Fisher Transform")
+        if not silent: print("   ✅ Fisher Transform")
         
         self.df['macd_line'], self.df['signal_line'], self.df['macd_histogram'] = self.calculate_macd_dema()
-        print("   ✅ MACD DEMA")
+        if not silent: print("   ✅ MACD DEMA")
         
         self.df['rsi_degeri'] = self.ta_rsi(self.df['close'], self.rsi_periodu)
-        print("   ✅ RSI")
+        if not silent: print("   ✅ RSI")
         
         self.df['sma200'] = self.df['close'].rolling(window=50).mean()
         self.df['ema1'] = self.df['close'].ewm(span=14, adjust=False).mean()
-        print("   ✅ SMA & EMA")
+        if not silent: print("   ✅ SMA & EMA")
         
         self.df['obv_rsi'] = self.calculate_obv_rsi()
-        print("   ✅ OBV RSI")
+        if not silent: print("   ✅ OBV RSI")
         
-        print("\n✅ Tüm indikatörler hazır!")
+        if not silent:
+            print("\n✅ Tüm indikatörler hazır!")
         
         # Trade USD hesapla
         lev = max(1, self.leverage) if self.enable_leverage else 1
@@ -500,9 +503,10 @@ class WhaleStopStrategy:
         self.next_long_size = self.min_lot
         self.next_short_size = self.min_lot
         
-        print(f"\n💰 Trade Ayarları:")
-        print(f"   • Trade Amount USD: ${trade_amount_usd:.2f}")
-        print(f"   • Initial Size: {self.min_lot:.4f}")
+        if not silent:
+            print(f"\n💰 Trade Ayarları:")
+            print(f"   • Trade Amount USD: ${trade_amount_usd:.2f}")
+            print(f"   • Initial Size: {self.min_lot:.4f}")
         
         # Her bar için strateji
         # print(f"\n⚙️ Strateji çalıştırılıyor... ({len(self.df)} bar)") # Optimizasyon sırasında konsolu kirletmemek için kapatıldı
@@ -510,12 +514,13 @@ class WhaleStopStrategy:
             # if i % 500 == 0 and i > 0:
             #     print(f"   📍 Bar {i}/{len(self.df)} işlendi...")
             self.process_bar(i)
-        # print(f"\n✅ Strateji tamamlandı!")
-        print(f"\n✅ Strateji tamamlandı!")
-        print(f"\n📈 Sonuçlar:")
-        print(f"   • Toplam Sinyal: {len(self.signals)}")
-        print(f"   • Toplam İşlem: {len(self.trades)}")
-        print("="*70)
+        
+        if not silent:
+            print(f"\n✅ Strateji tamamlandı!")
+            print(f"\n📈 Sonuçlar:")
+            print(f"   • Toplam Sinyal: {len(self.signals)}")
+            print(f"   • Toplam İşlem: {len(self.trades)}")
+            print("="*70)
         
         return self.df, self.trades, self.signals
     
@@ -1958,7 +1963,7 @@ def objective_whale(trial, data_slice):
     print(f"🚀 Optimizasyon Adımı #{trial.number}...")
 
     params = {
-        'enable_take_profit': trial.suggest_categorical('enable_take_profit', [False]),
+        'enable_take_profit': trial.suggest_categorical('enable_take_profit', [True, False]),
         'enable_trailing_stop': trial.suggest_categorical('enable_trailing_stop', [True]),
         'enable_maliyet_exit': trial.suggest_categorical('enable_maliyet_exit', [True]),
         'enable_mini_stop': trial.suggest_categorical('enable_mini_stop', [True]),
@@ -1968,11 +1973,11 @@ def objective_whale(trial, data_slice):
     }
 
     if params['enable_take_profit']:
-        params['take_profit_perc'] = trial.suggest_float('take_profit_perc', 3, 5, step=1)
+        params['take_profit_perc'] = trial.suggest_float('take_profit_perc', 3, 7, step=1)
     
     if params['enable_trailing_stop']:
         params['trailing_perc'] = trial.suggest_float('trailing_perc', 0.2, 2.0, step=0.2)
-        params['min_position_for_ts'] = trial.suggest_int('min_position_for_ts', 2, 5, step=1)
+        params['min_position_for_ts'] = trial.suggest_int('min_position_for_ts', 2, 7, step=1)
         # Trailing sonrası extra TP optimizasyonu (yeni eklendi)
         params['enable_extra_tp_after_ts'] = trial.suggest_categorical('enable_extra_tp_after_ts', [True, False])
         if params['enable_extra_tp_after_ts']:
@@ -1980,27 +1985,27 @@ def objective_whale(trial, data_slice):
 
     
     if params['enable_maliyet_exit']:
-        params['maliyet_return_perc'] = trial.suggest_float('maliyet_return_perc', 0.0, 1.0, step=0.2)
+        params['maliyet_return_perc'] = trial.suggest_float('maliyet_return_perc', 0, 0.5, step=0.1)
         params['min_entry_for_maliyet'] = trial.suggest_int('min_entry_for_maliyet', 3, 7, step=1)
     
     if params['enable_mini_stop']:
-        params['maliyet_stop_perc'] = trial.suggest_float('maliyet_stop_perc', 1.0, 5.0, step=0.5)
-        params['mini_loss_cooldown_bars'] = trial.suggest_int('mini_loss_cooldown_bars', 10, 50, step=10)
+        params['maliyet_stop_perc'] = trial.suggest_float('maliyet_stop_perc', 0.2, 5.0, step=0.2)
+        params['mini_loss_cooldown_bars'] = trial.suggest_int('mini_loss_cooldown_bars', 10, 100, step=10)
         params['min_entry_for_mini_loss'] = trial.suggest_int('min_entry_for_mini_loss', 3, 7, step=1)
     
     if params['enable_dca']:
-        params['max_dca'] = trial.suggest_int('max_dca', 1, 4, step=1)
-        params['dca_drop_perc'] = trial.suggest_float('dca_drop_perc', 2, 5, step=1) * 0.01
-        params['dca_mum_delay'] = trial.suggest_int('dca_mum_delay', 2, 6, step=1)
+        params['max_dca'] = trial.suggest_int('max_dca', 1, 5, step=1)
+        params['dca_drop_perc'] = trial.suggest_float('dca_drop_perc', 2, 7, step=1) * 0.01
+        params['dca_mum_delay'] = trial.suggest_int('dca_mum_delay', 1, 10, step=1)
     
     if params['enable_panic_drop']:
-        params['panic_drop_perc'] = trial.suggest_float('panic_drop_perc', 5.0, 13.0, step=2.0)
-        params['panic_drop_bars'] = trial.suggest_int('panic_drop_bars', 1, 3, step=1)
-        params['panic_cooldown_bars'] = trial.suggest_int('panic_cooldown_bars', 20, 100, step=20)
+        params['panic_drop_perc'] = trial.suggest_float('panic_drop_perc', 3, 13, step=1)
+        params['panic_drop_bars'] = trial.suggest_int('panic_drop_bars', 1, 5, step=1)
+        params['panic_cooldown_bars'] = trial.suggest_int('panic_cooldown_bars', 0, 100, step=20)
     
     if params['enable_drop_speed']:
-        params['drop_speed_perc'] = trial.suggest_float('drop_speed_perc', 2.0, 6.0, step=1.0)
-        params['drop_speed_bars'] = trial.suggest_int('drop_speed_bars', 1, 3, step=1)
+        params['drop_speed_perc'] = trial.suggest_float('drop_speed_perc', 1, 8, step=1)
+        params['drop_speed_bars'] = trial.suggest_int('drop_speed_bars', 1, 5, step=1)
     
     params['position_multiplier'] = trial.suggest_float('position_multiplier', 1, 2, step=1)
 
@@ -2015,7 +2020,7 @@ def objective_whale(trial, data_slice):
             if hasattr(strategy, key):
                 setattr(strategy, key, value)
         
-        df_result, trades, signals = strategy.run_strategy()
+        df_result, trades, signals = strategy.run_strategy(silent=True)
         
         stats = calculate_backtest_stats(trades)
         
@@ -2400,7 +2405,7 @@ if __name__ == "__main__":
         load_if_exists=True
     )
     
-    n_trials_full = 2  # DENEME SAYISI
+    n_trials_full = 50  # DENEME SAYISI
 
     print(f"\nAI Optimizasyonu (Tam Veri) başlıyor... Toplam {n_trials_full} deneme yapılacak.")
     
@@ -2475,9 +2480,9 @@ if __name__ == "__main__":
     # -----------------------------------------------------
     #               DENEME GÜNÜ
     # -----------------------------------------------------
-    IN_SAMPLE_DAYS = 270       # Öğrenme periyodu (GÜN) - Daha fazla WFO adımı için düşürüldü
+    IN_SAMPLE_DAYS = 180       # Öğrenme periyodu (GÜN) - Daha fazla WFO adımı için düşürüldü
     OUT_OF_SAMPLE_DAYS = 30    # Test periyodu (GÜN)
-    N_TRIALS_PER_STEP = 2    # Her WFO adımındaki Optuna deneme sayısı
+    N_TRIALS_PER_STEP = 50    # Her WFO adımındaki Optuna deneme sayısı
     # -----------------------------------------------------
 
     print(f"WFO Ayarları: {IN_SAMPLE_DAYS} GÜN öğren, SON {OUT_OF_SAMPLE_DAYS} GÜN test et.")
@@ -2515,7 +2520,7 @@ if __name__ == "__main__":
         
         study_step = optuna.create_study(
             storage="sqlite:///db.sqlite3",       # Veritabanı bağlantısı
-            study_name="WFO_Adim_{i}",       # Dashboard'da görünecek isim
+            study_name=f"WFO_Adim_{wfo_step_count}",       # Dashboard'da görünecek isim
             direction="maximize", 
             sampler=optuna.samplers.TPESampler(),
             load_if_exists=True                   # Hata almamak için şart
@@ -2540,7 +2545,7 @@ if __name__ == "__main__":
                     if hasattr(strategy_test, key):
                         setattr(strategy_test, key, value)
                 
-                df_test, trades_test, signals_test = strategy_test.run_strategy()
+                df_test, trades_test, signals_test = strategy_test.run_strategy(silent=True)
                 
                 test_stats = calculate_backtest_stats(trades_test)
                 
